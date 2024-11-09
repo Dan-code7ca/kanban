@@ -1,5 +1,5 @@
 import React from 'react';
-import { Calendar, Clock, X, Edit2, Info } from 'lucide-react';
+import { Calendar, Clock, X, Edit2, Info, MessageCircle } from 'lucide-react';
 import { Task, TeamMember, Priority } from '../types';
 import QuickEditModal from './QuickEditModal';
 
@@ -97,6 +97,12 @@ export default function TaskCard({
           >
             {task.priority}
           </div>
+          {task.comments && task.comments.length > 0 && (
+            <div className="flex items-center gap-1" title={`${task.comments.length} comment${task.comments.length === 1 ? '' : 's'}`}>
+              <MessageCircle size={14} />
+              <span>{task.comments.length}</span>
+            </div>
+          )}
         </div>
       </div>
 
