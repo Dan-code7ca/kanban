@@ -1,11 +1,11 @@
 import { useState, useEffect, useRef } from 'react';
-import { Task, Member } from '../types';
+import { Task, TeamMember } from '../types';
 import { X, Paperclip } from 'lucide-react';
 import CommentEditor from './CommentEditor';
 
 interface TaskDetailsProps {
   task: Task;
-  members: Member[];
+  members: TeamMember[];
   onClose: () => void;
   onUpdate: (updatedTask: Task) => void;
 }
@@ -57,8 +57,8 @@ export default function TaskDetails({ task, members, onClose, onUpdate }: TaskDe
   };
 
   const handleDateChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setEditedTask(prev => ({ ...prev, date: e.target.value }));
-    onUpdate({ ...editedTask, date: e.target.value });
+    setEditedTask(prev => ({ ...prev, startDate: e.target.value }));
+    onUpdate({ ...editedTask, startDate: e.target.value });
   };
 
   const handleEffortChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -68,13 +68,13 @@ export default function TaskDetails({ task, members, onClose, onUpdate }: TaskDe
   };
 
   const handlePriorityChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    setEditedTask(prev => ({ ...prev, priority: e.target.value }));
-    onUpdate({ ...editedTask, priority: e.target.value });
+    setEditedTask(prev => ({ ...prev, priority: e.target.value as Task['priority'] }));
+    onUpdate({ ...editedTask, priority: e.target.value as Task['priority'] });
   };
 
   const handleRequesterChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    setEditedTask(prev => ({ ...prev, requester: e.target.value }));
-    onUpdate({ ...editedTask, requester: e.target.value });
+    setEditedTask(prev => ({ ...prev, requesterId: e.target.value }));
+    onUpdate({ ...editedTask, requesterId: e.target.value });
   };
 
   const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -168,10 +168,10 @@ export default function TaskDetails({ task, members, onClose, onUpdate }: TaskDe
 
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">Date</label>
+              <label className="block text-sm font-medium text-gray-700 mb-2">Start Date</label>
               <input
                 type="date"
-                value={editedTask.date}
+                value={editedTask.startDate}
                 onChange={handleDateChange}
                 className="w-full border rounded-md p-2 focus:ring-blue-500 focus:border-blue-500"
               />
@@ -204,7 +204,7 @@ export default function TaskDetails({ task, members, onClose, onUpdate }: TaskDe
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">Requester</label>
             <select
-              value={editedTask.requester}
+              value={editedTask.requesterId}
               onChange={handleRequesterChange}
               className="w-full border rounded-md p-2 focus:ring-blue-500 focus:border-blue-500"
             >
@@ -284,7 +284,6 @@ export default function TaskDetails({ task, members, onClose, onUpdate }: TaskDe
                   )}
                 </div>
               ))}
-            
             </div>
           </div>
         </div>
