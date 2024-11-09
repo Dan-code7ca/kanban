@@ -244,6 +244,8 @@ export default function TaskDetails({ task, members, onClose, onUpdate }: TaskDe
             </div>
           </div>
 
+          <CommentEditor onSubmit={handleAddComment} />
+
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">Comments</label>
             <div className="space-y-4">
@@ -282,7 +284,7 @@ export default function TaskDetails({ task, members, onClose, onUpdate }: TaskDe
                   )}
                 </div>
               ))}
-              <CommentEditor onSubmit={handleAddComment} />
+            
             </div>
           </div>
         </div>
