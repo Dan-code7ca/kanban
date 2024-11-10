@@ -57,8 +57,10 @@ export default function TaskDetails({ task, members, onClose, onUpdate }: TaskDe
   };
 
   const handleDateChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setEditedTask(prev => ({ ...prev, startDate: e.target.value }));
-    onUpdate({ ...editedTask, startDate: e.target.value });
+    // Store the date directly without timezone conversion
+    const newDate = e.target.value;
+    setEditedTask(prev => ({ ...prev, startDate: newDate }));
+    onUpdate({ ...editedTask, startDate: newDate });
   };
 
   const handleEffortChange = (e: React.ChangeEvent<HTMLInputElement>) => {

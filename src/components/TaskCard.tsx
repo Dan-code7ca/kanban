@@ -60,6 +60,10 @@ export default function TaskCard({
     setShowMemberSelect(false);
   };
 
+  // Convert UTC date to local date for display
+  const localStartDate = new Date(task.startDate + 'T00:00:00')
+    .toLocaleDateString();
+
   return (
     <>
       <div
@@ -138,7 +142,7 @@ export default function TaskCard({
         <div className="flex items-center gap-4 text-sm text-gray-500">
           <div className="flex items-center gap-1">
             <Calendar size={14} />
-            <span>{new Date(task.startDate).toLocaleDateString()}</span>
+            <span>{localStartDate}</span>
           </div>
           <div className="flex items-center gap-1">
             <Clock size={14} />

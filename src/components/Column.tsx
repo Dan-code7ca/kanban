@@ -80,7 +80,7 @@ export default function KanbanColumn({
   return (
     <div
       ref={columnRef}
-      className="bg-gray-50 rounded-lg p-4 w-80 flex-shrink-0 flex flex-col"
+      className="bg-gray-50 rounded-lg p-4 flex flex-col min-h-[200px]"
       draggable="true"
       onDragStart={handleDragStart}
       onDragOver={handleDragOver}
@@ -156,7 +156,7 @@ export default function KanbanColumn({
       </div>
 
       <div 
-        className="flex-1 min-h-[200px]"
+        className="flex-1"
         onDragOver={(e) => {
           e.preventDefault();
           e.stopPropagation();

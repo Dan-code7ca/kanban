@@ -3,6 +3,7 @@ import { TeamMember, Task, Column, Columns, Priority } from './types';
 import TeamMembers from './components/TeamMembers';
 import KanbanColumn from './components/Column';
 import TaskDetails from './components/TaskDetails';
+import { Github } from 'lucide-react';
 
 const INITIAL_COLUMNS: Columns = {
   todo: { id: 'todo', title: 'To Do', tasks: [] },
@@ -22,6 +23,17 @@ export default function App() {
     currentIndex: number;
   } | null>(null);
   const [selectedTask, setSelectedTask] = React.useState<Task | null>(null);
+
+  // Calculate grid columns based on number of columns
+  const columnCount = Object.keys(columns).length;
+  const gridCols = columnCount <= 4 ? 4 : Math.min(6, columnCount);
+  const gridStyle = {
+    display: 'grid',
+    gridTemplateColumns: `repeat(${gridCols}, minmax(300px, 1fr))`,
+    gap: '1.5rem',
+    width: '100%',
+    overflowX: 'auto'
+  };
 
   const handleAddMember = (member: TeamMember) => {
     setMembers([...members, member]);
@@ -195,12 +207,17 @@ export default function App() {
       
       const [task] = sourceColumn.tasks.splice(taskIndex, 1);
       const updatedTask = { ...task, columnId: targetColumnId };
+
+      // If targetIndex is -1 or greater than the length of tasks, append to the end
+      const finalTargetIndex = targetIndex === -1 || targetIndex >= targetColumn.tasks.length
+        ? targetColumn.tasks.length
+        : targetIndex;
       
       if (sourceColumnId === targetColumnId) {
-        sourceColumn.tasks.splice(targetIndex, 0, updatedTask);
+        sourceColumn.tasks.splice(finalTargetIndex, 0, updatedTask);
         newColumns[sourceColumnId] = sourceColumn;
       } else {
-        targetColumn.tasks.splice(targetIndex, 0, updatedTask);
+        targetColumn.tasks.splice(finalTargetIndex, 0, updatedTask);
         newColumns[sourceColumnId] = sourceColumn;
         newColumns[targetColumnId] = targetColumn;
       }
@@ -216,9 +233,27 @@ export default function App() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-100 p-6">
-      <div className={`max-w-[1400px] mx-auto flex gap-6 ${selectedTask ? 'pr-96' : ''}`}>
-        <div className="flex-1">
+    <div className="min-h-screen bg-gray-100 flex flex-col">
+      <header className="bg-white shadow-md">
+        <div className="max-w-[1400px] mx-auto px-6 py-4 flex justify-between items-center">
+          <div className="flex items-center">
+            <a href="https://drenlia.com" target="_blank" rel="noopener noreferrer" className="text-gray-600 hover:text-blue-700">
+              Drenlia Inc.
+            </a>
+          </div>
+          <a
+            href="https://github.com/Dan-code7ca/kanban"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-gray-600 hover:text-gray-900"
+          >
+            <Github size={24} />
+          </a>
+        </div>
+      </header>
+
+      <div className={`flex-1 p-6 ${selectedTask ? 'pr-96' : ''}`}>
+        <div className="max-w-[1400px] mx-auto">
           <TeamMembers
             members={members}
             selectedMember={selectedMember}
@@ -229,7 +264,7 @@ export default function App() {
 
           <h1 className="text-2xl font-bold text-gray-800 mb-6">Project Board</h1>
 
-          <div className="flex gap-6 overflow-x-auto pb-6">
+          <div style={gridStyle}>
             {Object.values(columns).map(column => (
               <KanbanColumn
                 key={column.id}
@@ -253,18 +288,18 @@ export default function App() {
             ))}
           </div>
         </div>
-
-        {selectedTask && (
-          <div className="fixed top-0 right-0 h-full">
-            <TaskDetails
-              task={selectedTask}
-              members={members}
-              onClose={() => setSelectedTask(null)}
-              onUpdate={handleEditTask}
-            />
-          </div>
-        )}
       </div>
+
+      {selectedTask && (
+        <div className="fixed top-0 right-0 h-full">
+          <TaskDetails
+            task={selectedTask}
+            members={members}
+            onClose={() => setSelectedTask(null)}
+            onUpdate={handleEditTask}
+          />
+        </div>
+      )}
     </div>
   );
 }

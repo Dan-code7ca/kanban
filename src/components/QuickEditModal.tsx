@@ -18,6 +18,11 @@ export default function QuickEditModal({ task, members, onClose, onSave }: Quick
     onClose();
   };
 
+  const handleDateChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    // Store the date as is without timezone conversion
+    setEditedTask(prev => ({ ...prev, startDate: e.target.value }));
+  };
+
   return (
     <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
       <form onSubmit={handleSubmit} className="bg-white p-6 rounded-lg shadow-xl w-96">
@@ -83,7 +88,7 @@ export default function QuickEditModal({ task, members, onClose, onSave }: Quick
               <input
                 type="date"
                 value={editedTask.startDate}
-                onChange={e => setEditedTask(prev => ({ ...prev, startDate: e.target.value }))}
+                onChange={handleDateChange}
                 className="w-full px-3 py-2 border rounded-md"
               />
             </div>
