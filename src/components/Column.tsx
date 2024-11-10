@@ -10,6 +10,7 @@ interface KanbanColumnProps {
   onAddTask: (columnId: string) => void;
   onRemoveTask: (taskId: string) => void;
   onEditTask: (task: Task) => void;
+  onCopyTask: (task: Task) => void;
   onEditColumn: (columnId: string, title: string) => void;
   onRemoveColumn: (columnId: string) => void;
   onAddColumn: () => void;
@@ -28,6 +29,7 @@ export default function KanbanColumn({
   onAddTask,
   onRemoveTask,
   onEditTask,
+  onCopyTask,
   onEditColumn,
   onRemoveColumn,
   onAddColumn,
@@ -173,8 +175,10 @@ export default function KanbanColumn({
                 key={task.id}
                 task={task}
                 member={member}
+                members={members}
                 onRemove={onRemoveTask}
                 onEdit={onEditTask}
+                onCopy={onCopyTask}
                 onDragStart={onTaskDragStart}
                 onDragEnd={onTaskDragEnd}
                 onDragOver={handleTaskDragOver}

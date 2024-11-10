@@ -1,14 +1,15 @@
 import React from 'react';
 import { X } from 'lucide-react';
-import { Task, Priority } from '../types';
+import { Task, Priority, TeamMember } from '../types';
 
 interface QuickEditModalProps {
   task: Task;
+  members: TeamMember[];
   onClose: () => void;
   onSave: (task: Task) => void;
 }
 
-export default function QuickEditModal({ task, onClose, onSave }: QuickEditModalProps) {
+export default function QuickEditModal({ task, members, onClose, onSave }: QuickEditModalProps) {
   const [editedTask, setEditedTask] = React.useState(task);
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -43,6 +44,23 @@ export default function QuickEditModal({ task, onClose, onSave }: QuickEditModal
               className="w-full px-3 py-2 border rounded-md"
               required
             />
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Assigned To
+            </label>
+            <select
+              value={editedTask.memberId}
+              onChange={e => setEditedTask(prev => ({ ...prev, memberId: e.target.value }))}
+              className="w-full px-3 py-2 border rounded-md"
+            >
+              {members.map(member => (
+                <option key={member.id} value={member.id}>
+                  {member.name}
+                </option>
+              ))}
+            </select>
           </div>
 
           <div>

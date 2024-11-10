@@ -100,6 +100,23 @@ export default function App() {
     }));
   };
 
+  const handleCopyTask = (task: Task) => {
+    const newTask: Task = {
+      ...task,
+      id: crypto.randomUUID(),
+      title: `${task.title} (Copy)`,
+      comments: []
+    };
+
+    setColumns(prev => ({
+      ...prev,
+      [task.columnId]: {
+        ...prev[task.columnId],
+        tasks: [...prev[task.columnId].tasks, newTask]
+      }
+    }));
+  };
+
   const handleRemoveTask = (taskId: string) => {
     if (selectedTask?.id === taskId) {
       setSelectedTask(null);
@@ -222,6 +239,7 @@ export default function App() {
                 onAddTask={handleAddTask}
                 onRemoveTask={handleRemoveTask}
                 onEditTask={handleEditTask}
+                onCopyTask={handleCopyTask}
                 onEditColumn={handleEditColumn}
                 onRemoveColumn={handleRemoveColumn}
                 onAddColumn={handleAddColumn}

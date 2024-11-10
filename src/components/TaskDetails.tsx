@@ -126,6 +126,10 @@ export default function TaskDetails({ task, members, onClose, onUpdate }: TaskDe
     onUpdate(updatedTask);
   };
 
+  const sortedComments = [...(editedTask.comments || [])].sort(
+    (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+  );
+
   return (
     <div 
       className="fixed top-0 right-0 h-full bg-white border-l border-gray-200 flex" 
@@ -167,53 +171,55 @@ export default function TaskDetails({ task, members, onClose, onUpdate }: TaskDe
           </div>
 
           <div className="grid grid-cols-2 gap-4">
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">Start Date</label>
-              <input
-                type="date"
-                value={editedTask.startDate}
-                onChange={handleDateChange}
-                className="w-full border rounded-md p-2 focus:ring-blue-500 focus:border-blue-500"
-              />
+            <div className="space-y-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Start Date</label>
+                <input
+                  type="date"
+                  value={editedTask.startDate}
+                  onChange={handleDateChange}
+                  className="w-full border rounded-md p-1.5 focus:ring-blue-500 focus:border-blue-500 text-sm"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Priority</label>
+                <select
+                  value={editedTask.priority}
+                  onChange={handlePriorityChange}
+                  className="w-full border rounded-md p-1.5 focus:ring-blue-500 focus:border-blue-500 text-sm"
+                >
+                  <option value="low">Low</option>
+                  <option value="medium">Medium</option>
+                  <option value="high">High</option>
+                </select>
+              </div>
             </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">Effort (hours)</label>
-              <input
-                type="number"
-                value={editedTask.effort}
-                onChange={handleEffortChange}
-                min="0"
-                className="w-full border rounded-md p-2 focus:ring-blue-500 focus:border-blue-500"
-              />
+            <div className="space-y-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Effort (hours)</label>
+                <input
+                  type="number"
+                  value={editedTask.effort}
+                  onChange={handleEffortChange}
+                  min="0"
+                  className="w-full border rounded-md p-1.5 focus:ring-blue-500 focus:border-blue-500 text-sm"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Requester</label>
+                <select
+                  value={editedTask.requesterId}
+                  onChange={handleRequesterChange}
+                  className="w-full border rounded-md p-1.5 focus:ring-blue-500 focus:border-blue-500 text-sm"
+                >
+                  {members.map(member => (
+                    <option key={member.id} value={member.id}>
+                      {member.name}
+                    </option>
+                  ))}
+                </select>
+              </div>
             </div>
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">Priority</label>
-            <select
-              value={editedTask.priority}
-              onChange={handlePriorityChange}
-              className="w-full border rounded-md p-2 focus:ring-blue-500 focus:border-blue-500"
-            >
-              <option value="low">Low</option>
-              <option value="medium">Medium</option>
-              <option value="high">High</option>
-            </select>
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">Requester</label>
-            <select
-              value={editedTask.requesterId}
-              onChange={handleRequesterChange}
-              className="w-full border rounded-md p-2 focus:ring-blue-500 focus:border-blue-500"
-            >
-              {members.map(member => (
-                <option key={member.id} value={member.id}>
-                  {member.name}
-                </option>
-              ))}
-            </select>
           </div>
 
           <div>
@@ -249,7 +255,7 @@ export default function TaskDetails({ task, members, onClose, onUpdate }: TaskDe
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">Comments</label>
             <div className="space-y-4">
-              {editedTask.comments?.map((comment) => (
+              {sortedComments.map((comment) => (
                 <div key={comment.id} className="border rounded-lg p-4">
                   <div className="flex justify-between items-start mb-2">
                     <div>
