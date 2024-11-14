@@ -2,6 +2,7 @@ import React from 'react';
 import { Plus, MoreVertical } from 'lucide-react';
 import { Column, Task, TeamMember } from '../types';
 import TaskCard from './TaskCard';
+import * as api from '../api';
 
 interface KanbanColumnProps {
   column: Column;
@@ -43,13 +44,25 @@ export default function KanbanColumn({
   const [isEditing, setIsEditing] = React.useState(false);
   const [title, setTitle] = React.useState(column.title);
   const [showMenu, setShowMenu] = React.useState(false);
+  const [isSubmitting, setIsSubmitting] = React.useState(false);
   const columnRef = React.useRef<HTMLDivElement>(null);
 
-  const handleTitleSubmit = (e: React.FormEvent) => {
+  // Filter tasks to only show tasks that belong to this column's board
+  const columnTasks = column.tasks.filter(task => task.boardId === column.boardId);
+
+  const handleTitleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (title.trim()) {
-      onEditColumn(column.id, title.trim());
+    if (!title.trim() || isSubmitting) return;
+
+    try {
+      setIsSubmitting(true);
+      await onEditColumn(column.id, title.trim());
       setIsEditing(false);
+    } catch (error) {
+      console.error('Failed to update column:', error);
+      alert('Failed to update column. Please try again.');
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -77,6 +90,19 @@ export default function KanbanColumn({
     onTaskDragOver(e, column.id, index);
   };
 
+  const handleAddTask = async () => {
+    if (!selectedMember || isSubmitting) return;
+    try {
+      setIsSubmitting(true);
+      await onAddTask(column.id);
+    } catch (error) {
+      console.error('Failed to add task:', error);
+      alert('Failed to add task. Please try again.');
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
   return (
     <div
       ref={columnRef}
@@ -96,6 +122,7 @@ export default function KanbanColumn({
                 className="w-full px-2 py-1 border rounded"
                 autoFocus
                 onBlur={handleTitleSubmit}
+                disabled={isSubmitting}
               />
             </form>
           ) : (
@@ -107,11 +134,11 @@ export default function KanbanColumn({
                 {column.title}
               </h3>
               <button
-                onClick={() => onAddTask(column.id)}
-                disabled={!selectedMember}
-                title="Add Task"
+                onClick={handleAddTask}
+                disabled={!selectedMember || isSubmitting}
+                title={selectedMember ? 'Add Task' : 'Select a team member first'}
                 className={`p-1 rounded-full transition-colors ${
-                  selectedMember
+                  selectedMember && !isSubmitting
                     ? 'text-gray-500 hover:bg-gray-200 hover:text-gray-700'
                     : 'text-gray-400 cursor-not-allowed'
                 }`}
@@ -126,6 +153,7 @@ export default function KanbanColumn({
           <button
             onClick={() => setShowMenu(!showMenu)}
             className="p-1 hover:bg-gray-200 rounded-full transition-colors"
+            disabled={isSubmitting}
           >
             <MoreVertical size={18} className="text-gray-500" />
           </button>
@@ -138,6 +166,7 @@ export default function KanbanColumn({
                   setShowMenu(false);
                 }}
                 className="w-full text-left px-4 py-2 text-sm text-gray-600 hover:bg-gray-100"
+                disabled={isSubmitting}
               >
                 Add Column
               </button>
@@ -147,6 +176,7 @@ export default function KanbanColumn({
                   setShowMenu(false);
                 }}
                 className="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-gray-100"
+                disabled={isSubmitting}
               >
                 Delete Column
               </button>
@@ -160,19 +190,19 @@ export default function KanbanColumn({
         onDragOver={(e) => {
           e.preventDefault();
           e.stopPropagation();
-          if (column.tasks.length === 0) {
+          if (columnTasks.length === 0) {
             onTaskDragOver(e, column.id, 0);
           }
         }}
       >
         <div className="space-y-3">
-          {column.tasks.map((task, index) => {
+          {columnTasks.map((task, index) => {
             const member = members.find(m => m.id === task.memberId);
             if (!member) return null;
             
             return (
               <TaskCard
-                key={task.id}
+                key={`${column.boardId}-${column.id}-${task.id}-${index}`}
                 task={task}
                 member={member}
                 members={members}

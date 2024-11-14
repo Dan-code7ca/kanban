@@ -30,6 +30,7 @@ export interface Task {
   startDate: string;
   effort: number;
   columnId: string;
+  boardId: string;
   priority: Priority;
   requesterId: string;
   comments: Comment[];
@@ -39,8 +40,15 @@ export interface Column {
   id: string;
   title: string;
   tasks: Task[];
+  boardId: string;
 }
 
 export interface Columns {
   [key: string]: Column;
+}
+
+export interface Board {
+  id: string;
+  title: string;
+  columns: Columns;
 }

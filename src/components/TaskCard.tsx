@@ -38,6 +38,7 @@ export default function TaskCard({
 }: TaskCardProps) {
   const [showQuickEdit, setShowQuickEdit] = React.useState(false);
   const [showMemberSelect, setShowMemberSelect] = React.useState(false);
+  const [showCommentTooltip, setShowCommentTooltip] = React.useState(false);
 
   const handleDragStart = (e: React.DragEvent<HTMLDivElement>) => {
     e.stopPropagation();
@@ -60,6 +61,23 @@ export default function TaskCard({
     setShowMemberSelect(false);
   };
 
+  const uniqueId = `${task.boardId}-${task.id}-${task.columnId}-${index}`;
+
+  // Get the latest comment
+  const latestComment = task.comments && task.comments.length > 0
+    ? task.comments.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())[0]
+    : null;
+
+  // Get the author of the latest comment
+  const commentAuthor = latestComment
+    ? members.find(m => m.id === latestComment.authorId)?.name
+    : null;
+
+  // Format the comment date
+  const commentDate = latestComment
+    ? new Date(latestComment.createdAt).toLocaleDateString()
+    : null;
+
   // Convert UTC date to local date for display
   const localStartDate = new Date(task.startDate + 'T00:00:00')
     .toLocaleDateString();
@@ -73,6 +91,7 @@ export default function TaskCard({
         onDragStart={handleDragStart}
         onDragEnd={onDragEnd}
         onDragOver={handleDragOver}
+        data-task-id={uniqueId}
       >
         <div className="flex justify-between items-start mb-2">
           <h3 className="font-medium text-gray-800">{task.title}</h3>
@@ -148,9 +167,27 @@ export default function TaskCard({
             <Clock size={14} />
             <span>{task.effort}h</span>
           </div>
-          <div className="flex items-center gap-1">
+          <div 
+            className="flex items-center gap-1 relative"
+            onMouseEnter={() => setShowCommentTooltip(true)}
+            onMouseLeave={() => setShowCommentTooltip(false)}
+          >
             <MessageCircle size={14} />
             <span>{task.comments?.length || 0}</span>
+            
+            {showCommentTooltip && latestComment && (
+              <div className="absolute bottom-full left-0 mb-2 w-64 bg-white rounded-lg shadow-lg p-3 text-xs z-50">
+                <div className="text-gray-900 font-medium mb-1">
+                  {commentAuthor} • {commentDate}
+                </div>
+                <div className="text-gray-600" dangerouslySetInnerHTML={{ __html: latestComment.text }} />
+                {latestComment.attachments?.length > 0 && (
+                  <div className="mt-2 pt-2 border-t border-gray-100">
+                    <div className="text-gray-500">Attachments: {latestComment.attachments.length}</div>
+                  </div>
+                )}
+              </div>
+            )}
           </div>
           <div
             className={`px-2 py-1 rounded-full text-xs ${PRIORITY_COLORS[task.priority]}`}

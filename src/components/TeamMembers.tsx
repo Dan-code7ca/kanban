@@ -1,6 +1,7 @@
 import React from 'react';
 import { Plus, X } from 'lucide-react';
 import { TeamMember } from '../types';
+import * as api from '../api';
 
 const PRESET_COLORS = [
   '#FF6B6B', '#4ECDC4', '#45B7D1', '#96CEB4',
@@ -25,22 +26,41 @@ export default function TeamMembers({
 }: TeamMembersProps) {
   const [showAddForm, setShowAddForm] = React.useState(false);
   const [newMemberName, setNewMemberName] = React.useState('');
+  const [isSubmitting, setIsSubmitting] = React.useState(false);
 
-  const handleAdd = (e: React.FormEvent) => {
+  const handleAdd = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!newMemberName.trim()) return;
+    if (!newMemberName.trim() || isSubmitting) return;
 
     const usedColors = new Set(members.map(m => m.color));
     const availableColor = PRESET_COLORS.find(c => !usedColors.has(c)) || PRESET_COLORS[0];
 
-    onAdd({
+    const newMember: TeamMember = {
       id: crypto.randomUUID(),
       name: newMemberName.trim(),
       color: availableColor
-    });
+    };
 
-    setNewMemberName('');
-    setShowAddForm(false);
+    try {
+      setIsSubmitting(true);
+      await onAdd(newMember);
+      setNewMemberName('');
+      setShowAddForm(false);
+    } catch (error) {
+      console.error('Failed to add member:', error);
+      alert('Failed to add member. Please try again.');
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const handleRemove = async (id: string) => {
+    try {
+      await onRemove(id);
+    } catch (error) {
+      console.error('Failed to remove member:', error);
+      alert('Failed to remove member. Please try again.');
+    }
   };
 
   return (
@@ -73,9 +93,10 @@ export default function TeamMembers({
             <button
               onClick={(e) => {
                 e.stopPropagation();
-                onRemove(member.id);
+                handleRemove(member.id);
               }}
               className="p-1 hover:bg-white/20 rounded-full transition-colors"
+              disabled={isSubmitting}
             >
               <X size={14} />
             </button>
@@ -94,20 +115,25 @@ export default function TeamMembers({
               placeholder="Member name"
               className="w-full px-3 py-2 border rounded-md mb-4"
               autoFocus
+              disabled={isSubmitting}
             />
             <div className="flex justify-end gap-3">
               <button
                 type="button"
                 onClick={() => setShowAddForm(false)}
                 className="px-4 py-2 text-gray-600 hover:bg-gray-100 rounded-md"
+                disabled={isSubmitting}
               >
                 Cancel
               </button>
               <button
                 type="submit"
-                className="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600"
+                className={`px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 flex items-center gap-2 ${
+                  isSubmitting ? 'opacity-50 cursor-not-allowed' : ''
+                }`}
+                disabled={isSubmitting}
               >
-                Add
+                {isSubmitting ? 'Adding...' : 'Add'}
               </button>
             </div>
           </form>
